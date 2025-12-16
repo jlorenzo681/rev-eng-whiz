@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OmniPay Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; }
+        .login-box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { display: block; margin: 10px 0; padding: 8px; width: 100%; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>OmniPay Secure Login</h2>
+        <input type="text" id="username" placeholder="Username" value="demo_user">
+        <input type="password" id="password" placeholder="Password" value="password123">
+        <input type="hidden" id="challenge" value="{{ challenge }}">
+        <button onclick="performLogin()">Login</button>
+        <p id="msg" style="color:red"></p>
+    </div>
+
+    <script>
+        // Anti-bot Protection Layer v4.2
+        
+        const _0x1a2b = ['value', 'challenge', 'charCodeAt', 'fromCharCode', 'btoa'];
+        
+        function _secureHash(input) {
+            let output = "";
+            for (let i = 0; i < input.length; i++) {
+                // Obfuscated shift logic: (index % 4) + 1
+                let shift = (i % 4) + 1;
+                output += String.fromCharCode(input.charCodeAt(i) + shift);
+            }
+            return btoa(output);
+        }
+
+        async function performLogin() {
+            const challenge = document.getElementById('challenge').value;
+            // The "password" is not actually sent in this mock, only the proof-of-humanity challenge
+            // In a real app, we'd hash the password AND the challenge.
+            // For this showcase, demonstrating the RE of the protection algorithm is the key.
+            
+            const protectionResponse = _secureHash(challenge);
+            
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        challenge: challenge,
+                        response: protectionResponse
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    alert("Login Successful! Token: " + data.access_token);
+                } else {
+                    document.getElementById('msg').innerText = "Login Failed: Bot Detected";
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
